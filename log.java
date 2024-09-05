@@ -125,3 +125,11 @@ public class Authentication {
         }
     }
 }
+private static boolean validatePassword(String password) {
+    // Regex to match the password requirements
+    String passwordPattern = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[@#&%*!]).{8,12}$";
+
+    // Return true if the password matches the regex pattern, otherwise false
+    return password.matches(passwordPattern);
+}
+
