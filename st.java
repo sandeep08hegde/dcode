@@ -305,3 +305,28 @@ class Student {
                 "\nGrade: " + grade + "\nGPA: " + gpa + "\nAddress: " + address + "\nPhone Number: " + phoneNumber + "\n";
     }
 }
+
+
+
+boolean validInput = false;
+            while (!validInput) {
+                System.out.println("Do you want to add another student?");
+                System.out.println("1. Yes");
+                System.out.println("2. No");
+                System.out.print("Select an option: ");
+                int choice = scanner.nextInt();
+                scanner.nextLine(); // Consume newline
+
+                switch (choice) {
+                    case 1:
+                        validInput = true; // Continue the loop to add more students
+                        break;
+                    case 2:
+                        adding = false; // Exit the loop if the user doesn't want to add more students
+                        validInput = true; // Exit the inner loop
+                        break;
+                    default:
+                        System.out.println("Invalid option. Please select 1 or 2.");
+                        break;
+                }
+            }
