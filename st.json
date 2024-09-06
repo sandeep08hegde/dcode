@@ -1,0 +1,171 @@
+import java.io.*;
+import java.util.*;
+import org.json.*;
+
+public class JsonFileManager {
+    private static final String STUDENT_DATA_FILE = "StudentData.json";
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        List<Student> students = loadStudentData(); // Load existing student data or initialize an empty list
+
+        while (true) {
+            System.out.println("1. Add Student Data");
+            System.out.println("2. List Student Data");
+            System.out.println("3. Exit");
+            System.out.print("Select an option: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            switch (choice) {
+                case 1 -> addStudent(scanner, students);
+                case 2 -> listStudents(students);
+                case 3 -> {
+                    saveStudentData(students); // Save data before exiting
+                    System.out.println("Exiting...");
+                    return;
+                }
+                default -> System.out.println("Invalid option! Please choose 1, 2, or 3.");
+            }
+        }
+    }
+
+    private static void addStudent(Scanner scanner, List<Student> students) {
+        System.out.print("Enter Student ID: ");
+        String studentId = scanner.nextLine();
+        System.out.print("Enter Name: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter Age: ");
+        int age = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+
+        System.out.print("Enter School Name: ");
+        String schoolName = scanner.nextLine();
+        System.out.print("Enter Grade: ");
+        String grade = scanner.nextLine();
+        System.out.print("Enter GPA: ");
+        double gpa = scanner.nextDouble();
+        scanner.nextLine(); // Consume newline
+
+        System.out.print("Enter Address: ");
+        String address = scanner.nextLine();
+        System.out.print("Enter Phone Number (10 digits): ");
+        String phoneNumber = scanner.nextLine();
+
+        Student student = new Student(studentId, name, age, schoolName, grade, gpa, address, phoneNumber);
+        students.add(student);
+        System.out.println("Student details added successfully.");
+    }
+
+    private static void listStudents(List<Student> students) {
+        if (students.isEmpty()) {
+            System.out.println("No student records found.");
+        } else {
+            System.out.println("Student database records:");
+            for (Student student : students) {
+                System.out.println(student);
+            }
+        }
+    }
+
+    private static List<Student> loadStudentData() {
+        List<Student> students = new ArrayList<>();
+        File file = new File(STUDENT_DATA_FILE);
+
+        if (file.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                StringBuilder jsonData = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    jsonData.append(line);
+                }
+
+                // Parse JSON data
+                JSONArray studentArray = new JSONArray(jsonData.toString());
+                for (int i = 0; i < studentArray.length(); i++) {
+                    JSONObject studentObj = studentArray.getJSONObject(i);
+                    Student student = new Student(
+                        studentObj.getString("studentId"),
+                        studentObj.getString("name"),
+                        studentObj.getInt("age"),
+                        studentObj.getString("schoolName"),
+                        studentObj.getString("grade"),
+                        studentObj.getDouble("gpa"),
+                        studentObj.getString("address"),
+                        studentObj.getString("phoneNumber")
+                    );
+                    students.add(student);
+                }
+            } catch (IOException | JSONException e) {
+                System.out.println("Error reading student data. Starting with an empty list.");
+            }
+        }
+        return students;
+    }
+
+    private static void saveStudentData(List<Student> students) {
+        try (FileWriter file = new FileWriter(STUDENT_DATA_FILE)) {
+            JSONArray studentArray = new JSONArray();
+            for (Student student : students) {
+                JSONObject studentObj = new JSONObject();
+                studentObj.put("studentId", student.getStudentId());
+                studentObj.put("name", student.getName());
+                studentObj.put("age", student.getAge());
+                studentObj.put("schoolName", student.getSchoolName());
+                studentObj.put("grade", student.getGrade());
+                studentObj.put("gpa", student.getGpa());
+                studentObj.put("address", student.getAddress());
+                studentObj.put("phoneNumber", student.getPhoneNumber());
+                studentArray.put(studentObj);
+            }
+            file.write(studentArray.toString());
+            file.flush();
+            System.out.println("Data saved successfully.");
+        } catch (IOException e) {
+            System.out.println("Error saving student data.");
+        }
+    }
+}
+
+class Student {
+    private String studentId;
+    private String name;
+    private int age;
+    private String schoolName;
+    private String grade;
+    private double gpa;
+    private String address;
+    private String phoneNumber;
+
+    public Student(String studentId, String name, int age, String schoolName, String grade, double gpa, String address, String phoneNumber) {
+        this.studentId = studentId;
+        this.name = name;
+        this.age = age;
+        this.schoolName = schoolName;
+        this.grade = grade;
+        this.gpa = gpa;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getStudentId() { return studentId; }
+    public String getName() { return name; }
+    public int getAge() { return age; }
+    public String getSchoolName() { return schoolName; }
+    public String getGrade() { return grade; }
+    public double getGpa() { return gpa; }
+    public String getAddress() { return address; }
+    public String getPhoneNumber() { return phoneNumber; }
+
+    @Override
+    public String toString() {
+        return "Student ID: " + studentId +
+               ", Name: " + name +
+               ", Age: " + age +
+               ", School Name: " + schoolName +
+               ", Grade: " + grade +
+               ", GPA: " + gpa +
+               ", Address: " + address +
+               ", Phone Number: " + phoneNumber;
+    }
+}

@@ -1,0 +1,152 @@
+import java.io.*;
+import java.util.*;
+import org.json.*;
+
+public class UserManager {
+    private static final String USER_DATA_FILE = "UserData.json";
+    private static final List<User> users = new ArrayList<>();
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        loadUserData(); // Load existing user data or initialize an empty list
+
+        while (true) {
+            System.out.println("1. Register User");
+            System.out.println("2. List Users");
+            System.out.println("3. Exit");
+            System.out.print("Select an option: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            switch (choice) {
+                case 1 -> registerUser(scanner);
+                case 2 -> listUsers();
+                case 3 -> {
+                    saveUserData(); // Save data before exiting
+                    System.out.println("Exiting...");
+                    return;
+                }
+                default -> System.out.println("Invalid option! Please choose 1, 2, or 3.");
+            }
+        }
+    }
+
+    private static void registerUser(Scanner scanner) {
+        System.out.print("Enter User ID: ");
+        String userId = scanner.nextLine();
+        System.out.print("Enter User Name: ");
+        String userName = scanner.nextLine();
+        System.out.print("Enter Password: ");
+        String password = scanner.nextLine();
+
+        if (!validatePassword(password)) {
+            System.out.println("Password does not meet the criteria.");
+            return;
+        }
+
+        // Check for duplicate User ID
+        for (User user : users) {
+            if (user.getUserId().equals(userId)) {
+                System.out.println("User ID already exists.");
+                return;
+            }
+        }
+
+        User user = new User(userId, userName, password);
+        users.add(user);
+        System.out.println("Registration successful.");
+    }
+
+    private static void listUsers() {
+        if (users.isEmpty()) {
+            System.out.println("No user records found.");
+        } else {
+            System.out.println("User database records:");
+            for (User user : users) {
+                System.out.println(user);
+            }
+        }
+    }
+
+    private static boolean validatePassword(String password) {
+        if (password.length() < 8 || password.length() > 12) {
+            return false;
+        }
+        boolean hasUpperCase = false;
+        boolean hasLowerCase = false;
+        boolean hasDigit = false;
+        boolean hasSpecialChar = false;
+        for (char c : password.toCharArray()) {
+            if (Character.isUpperCase(c)) hasUpperCase = true;
+            else if (Character.isLowerCase(c)) hasLowerCase = true;
+            else if (Character.isDigit(c)) hasDigit = true;
+            else if ("@#&%*!".indexOf(c) >= 0) hasSpecialChar = true;
+        }
+        return hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar;
+    }
+
+    private static void loadUserData() {
+        File file = new File(USER_DATA_FILE);
+        if (file.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                StringBuilder jsonData = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    jsonData.append(line);
+                }
+                JSONArray userArray = new JSONArray(jsonData.toString());
+                for (int i = 0; i < userArray.length(); i++) {
+                    JSONObject userObj = userArray.getJSONObject(i);
+                    User user = new User(
+                        userObj.getString("userId"),
+                        userObj.getString("userName"),
+                        userObj.getString("password")
+                    );
+                    users.add(user);
+                }
+            } catch (IOException | JSONException e) {
+                System.out.println("Error reading user data. Starting with an empty list.");
+            }
+        }
+    }
+
+    private static void saveUserData() {
+        try (FileWriter file = new FileWriter(USER_DATA_FILE)) {
+            JSONArray userArray = new JSONArray();
+            for (User user : users) {
+                JSONObject userObj = new JSONObject();
+                userObj.put("userId", user.getUserId());
+                userObj.put("userName", user.getUserName());
+                userObj.put("password", user.getPassword());
+                userArray.put(userObj);
+            }
+            file.write(userArray.toString());
+            file.flush();
+            System.out.println("Data saved successfully.");
+        } catch (IOException e) {
+            System.out.println("Error saving user data.");
+        }
+    }
+}
+
+class User {
+    private String userId;
+    private String userName;
+    private String password;
+
+    public User(String userId, String userName, String password) {
+        this.userId = userId;
+        this.userName = userName;
+        this.password = password;
+    }
+
+    public String getUserId() { return userId; }
+    public String getUserName() { return userName; }
+    public String getPassword() { return password; }
+
+    @Override
+    public String toString() {
+        return "User ID: " + userId +
+               ", User Name: " + userName;
+    }
+}
