@@ -315,3 +315,83 @@ class Student {
         }
 
         System.out.println("Logged in as User ID: " + loggedInUserId);
+
+
+
+
+ // Method to load student data from Excel
+    private void loadStudentData() {
+        students.clear(); // Clear the existing data in case of reloading
+
+        try (FileInputStream fis = new FileInputStream(STUDENT_DATA_FILE);
+             XSSFWorkbook workbook = new XSSFWorkbook(fis)) {
+            XSSFSheet sheet = workbook.getSheet("Students");
+
+            if (sheet == null) return; // If the sheet does not exist, return early
+
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0) continue; // Skip header row if there is any
+
+                String studentId = row.getCell(0).getStringCellValue();
+                String name = row.getCell(1).getStringCellValue();
+                int age = (int) row.getCell(2).getNumericCellValue(); // Convert numeric to int
+                String schoolName = row.getCell(3).getStringCellValue();
+                String grade = row.getCell(4).getStringCellValue();
+                double gpa = row.getCell(5).getNumericCellValue(); // Convert numeric to double
+                String address = row.getCell(6).getStringCellValue();
+                String phoneNumber = row.getCell(7).getStringCellValue();
+
+                // Add the student object to the list
+                students.add(new Student(studentId, name, age, schoolName, grade, gpa, address, phoneNumber));
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Student data file not found: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error reading student data: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Unexpected error occurred while loading data: " + e.getMessage());
+        }
+    }
+
+    // Method to save student data to Excel
+    private void saveStudentData() {
+        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+            XSSFSheet sheet = workbook.createSheet("Students");
+            int rowNum = 0;
+            
+            // Create header row
+            Row header = sheet.createRow(rowNum++);
+            header.createCell(0).setCellValue("Student ID");
+            header.createCell(1).setCellValue("Name");
+            header.createCell(2).setCellValue("Age");
+            header.createCell(3).setCellValue("School Name");
+            header.createCell(4).setCellValue("Grade");
+            header.createCell(5).setCellValue("GPA");
+            header.createCell(6).setCellValue("Address");
+            header.createCell(7).setCellValue("Phone Number");
+
+            // Write student data
+            for (Student student : students) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(student.getStudentId());
+                row.createCell(1).setCellValue(student.getName());
+                row.createCell(2).setCellValue(student.getAge());
+                row.createCell(3).setCellValue(student.getSchoolName());
+                row.createCell(4).setCellValue(student.getGrade());
+                row.createCell(5).setCellValue(student.getGpa());
+                row.createCell(6).setCellValue(student.getAddress());
+                row.createCell(7).setCellValue(student.getPhoneNumber());
+            }
+
+            try (FileOutputStream fos = new FileOutputStream(STUDENT_DATA_FILE)) {
+                workbook.write(fos);
+            }
+        } catch (Exception e) {
+            System.out.println("Error saving student data: " + e.getMessage());
+        }
+    }
+
+    // Add Student, Update Student, and Delete Student methods remain the same
+
+    // Inner class Student and other methods remain the same
+}
