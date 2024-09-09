@@ -272,3 +272,74 @@ public class DropdownSelection {
     }
 }
 
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class ElementLocatorAssignment {
+    public static void main(String[] args) {
+        // Set up ChromeDriver path (replace with your path to chromedriver)
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+
+        // Initialize ChromeDriver
+        WebDriver driver = new ChromeDriver();
+
+        try {
+            // 1. Open the website
+            driver.get("https://www.phptravels.net/hotels");
+            driver.manage().window().maximize();
+
+            // 2. Locate the Check-in Calendar Icon using XPath
+            WebElement checkInCalendarIconXPath = driver.findElement(By.xpath("//label[text()='Check in']/following-sibling::div//i[contains(@class, 'calendar')]"));
+            System.out.println("Check-in Calendar Icon (XPath) displayed: " + checkInCalendarIconXPath.isDisplayed());
+
+            // 3. Locate the Check-out Calendar Icon using XPath
+            WebElement checkOutCalendarIconXPath = driver.findElement(By.xpath("//label[text()='Check out']/following-sibling::div//i[contains(@class, 'calendar')]"));
+            System.out.println("Check-out Calendar Icon (XPath) displayed: " + checkOutCalendarIconXPath.isDisplayed());
+
+            // 4. Locate the "+" Icon for Rooms using XPath
+            WebElement plusIconForRoomsXPath = driver.findElement(By.xpath("//label[text()='Rooms']/following-sibling::div//button[contains(@class, 'roomAdd')]"));
+            System.out.println("+ Icon for Rooms (XPath) displayed: " + plusIconForRoomsXPath.isDisplayed());
+
+            // 5. Locate the "-" Icon for Rooms using XPath
+            WebElement minusIconForRoomsXPath = driver.findElement(By.xpath("//label[text()='Rooms']/following-sibling::div//button[contains(@class, 'roomRemove')]"));
+            System.out.println("- Icon for Rooms (XPath) displayed: " + minusIconForRoomsXPath.isDisplayed());
+
+            // 6. Locate the "1" Input Tab for Rooms using XPath
+            WebElement inputTabForRoomsXPath = driver.findElement(By.xpath("//label[text()='Rooms']/following-sibling::div//input[@type='number']"));
+            System.out.println("Input Tab for Rooms (XPath) displayed: " + inputTabForRoomsXPath.isDisplayed());
+
+            // 7. Locate elements using CSS Selectors for confirmation
+
+            // Check-in Calendar Icon using CSS Selector
+            WebElement checkInCalendarIconCSS = driver.findElement(By.cssSelector("label[for='checkin'] + div i.calendar"));
+            System.out.println("Check-in Calendar Icon (CSS) displayed: " + checkInCalendarIconCSS.isDisplayed());
+
+            // Check-out Calendar Icon using CSS Selector
+            WebElement checkOutCalendarIconCSS = driver.findElement(By.cssSelector("label[for='checkout'] + div i.calendar"));
+            System.out.println("Check-out Calendar Icon (CSS) displayed: " + checkOutCalendarIconCSS.isDisplayed());
+
+            // "+" Icon for Rooms using CSS Selector
+            WebElement plusIconForRoomsCSS = driver.findElement(By.cssSelector("label[for='rooms'] + div button.roomAdd"));
+            System.out.println("+ Icon for Rooms (CSS) displayed: " + plusIconForRoomsCSS.isDisplayed());
+
+            // "-" Icon for Rooms using CSS Selector
+            WebElement minusIconForRoomsCSS = driver.findElement(By.cssSelector("label[for='rooms'] + div button.roomRemove"));
+            System.out.println("- Icon for Rooms (CSS) displayed: " + minusIconForRoomsCSS.isDisplayed());
+
+            // "1" Input Tab for Rooms using CSS Selector
+            WebElement inputTabForRoomsCSS = driver.findElement(By.cssSelector("label[for='rooms'] + div input[type='number']"));
+            System.out.println("Input Tab for Rooms (CSS) displayed: " + inputTabForRoomsCSS.isDisplayed());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Close the browser
+            driver.quit();
+        }
+    }
+}
+
+
