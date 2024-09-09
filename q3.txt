@@ -139,3 +139,85 @@ public class FramesAssignment {
         }
     }
 }
+
+
+q6
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.JavascriptExecutor;
+
+public class DragAndDropUsingJS {
+    public static void main(String[] args) {
+        // Set up ChromeDriver path (replace with your path to chromedriver)
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+
+        // Initialize ChromeDriver
+        WebDriver driver = new ChromeDriver();
+
+        try {
+            // 1. Launch https://the-internet.herokuapp.com/
+            driver.get("https://the-internet.herokuapp.com/");
+
+            // 2. Click on 'Drag and Drop'
+            WebElement dragAndDropLink = driver.findElement(By.linkText("Drag and Drop"));
+            dragAndDropLink.click();
+
+            // 3. Perform Drag and Drop using JavaScriptExecutor
+            WebElement columnA = driver.findElement(By.id("column-a"));
+            WebElement columnB = driver.findElement(By.id("column-b"));
+
+            // Using JavaScript to perform drag and drop
+            JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+            String dragAndDropScript = "function createEvent(typeOfEvent) {" +
+                    "var event = document.createEvent(\"CustomEvent\");" +
+                    "event.initCustomEvent(typeOfEvent, true, true, null);" +
+                    "event.dataTransfer = {" +
+                    "data: {}," +
+                    "setData: function (key, value) {" +
+                    "this.data[key] = value;" +
+                    "}," +
+                    "getData: function (key) {" +
+                    "return this.data[key];" +
+                    "}" +
+                    "};" +
+                    "return event;" +
+                    "}" +
+                    "" +
+                    "function dispatchEvent(element, event, transferData) {" +
+                    "if (transferData !== undefined) {" +
+                    "event.dataTransfer = transferData;" +
+                    "}" +
+                    "if (element.dispatchEvent) {" +
+                    "element.dispatchEvent(event);" +
+                    "} else if (element.fireEvent) {" +
+                    "element.fireEvent(\"on\" + event.type, event);" +
+                    "}" +
+                    "}" +
+                    "" +
+                    "function simulateHTML5DragAndDrop(element, destination) {" +
+                    "var dragStartEvent = createEvent('dragstart');" +
+                    "dispatchEvent(element, dragStartEvent);" +
+                    "var dropEvent = createEvent('drop');" +
+                    "dispatchEvent(destination, dropEvent, dragStartEvent.dataTransfer);" +
+                    "var dragEndEvent = createEvent('dragend');" +
+                    "dispatchEvent(element, dragEndEvent, dragStartEvent.dataTransfer);" +
+                    "}" +
+                    "" +
+                    "simulateHTML5DragAndDrop(arguments[0], arguments[1]);";
+
+            // Execute the JavaScript to perform the drag and drop
+            jsExecutor.executeScript(dragAndDropScript, columnA, columnB);
+
+            // Pause for a few seconds to observe the result
+            Thread.sleep(2000);  // Wait for 2 seconds (optional)
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Close the browser
+            driver.quit();
+        }
+    }
+}
