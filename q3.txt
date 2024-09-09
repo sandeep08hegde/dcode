@@ -221,3 +221,54 @@ public class DragAndDropUsingJS {
         }
     }
 }
+
+
+
+q7
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
+
+public class DropdownSelection {
+    public static void main(String[] args) {
+        // Set up ChromeDriver path (replace with your path to chromedriver)
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+
+        // Initialize ChromeDriver
+        WebDriver driver = new ChromeDriver();
+
+        try {
+            // 1. Launch https://the-internet.herokuapp.com/dropdown
+            driver.get("https://the-internet.herokuapp.com/dropdown");
+
+            // 2. Locate the dropdown element
+            WebElement dropdownElement = driver.findElement(By.id("dropdown"));
+
+            // 3. Use the Select class to interact with the dropdown
+            Select dropdown = new Select(dropdownElement);
+
+            // 4. Select "Option 2" from the dropdown
+            dropdown.selectByVisibleText("Option 2");
+
+            // Pause for a few seconds to observe the result (optional)
+            Thread.sleep(2000);  // Wait for 2 seconds
+
+            // Verify the selected option
+            WebElement selectedOption = dropdown.getFirstSelectedOption();
+            if (selectedOption.getText().equals("Option 2")) {
+                System.out.println("PASS: Option 2 is selected.");
+            } else {
+                System.out.println("FAIL: Option 2 is not selected. Found: " + selectedOption.getText());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Close the browser
+            driver.quit();
+        }
+    }
+}
+
