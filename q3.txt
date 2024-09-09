@@ -88,3 +88,54 @@ public class SeleniumAssignment {
         }
     }
 }
+
+
+q4.
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class FramesAssignment {
+    public static void main(String[] args) {
+        // Set up ChromeDriver path (replace with your path to chromedriver)
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+
+        // Initialize ChromeDriver
+        WebDriver driver = new ChromeDriver();
+
+        try {
+            // 1. Launch https://the-internet.herokuapp.com/
+            driver.get("https://the-internet.herokuapp.com/");
+
+            // 2. Click on "Frames"
+            WebElement framesLink = driver.findElement(By.linkText("Frames"));
+            framesLink.click();
+
+            // 3. Click on "Nested Frames"
+            WebElement nestedFramesLink = driver.findElement(By.linkText("Nested Frames"));
+            nestedFramesLink.click();
+
+            // 4. Switch to the main frameset containing nested frames
+            driver.switchTo().frame("frame-top");
+
+            // 5. Switch to the LEFT frame
+            driver.switchTo().frame("frame-left");
+
+            // Retrieve the content inside the LEFT frame
+            WebElement leftFrameContent = driver.findElement(By.tagName("body"));
+            String leftFrameText = leftFrameContent.getText().trim(); // Trim any whitespace around the text
+
+            // Ensure the title/content of the LEFT frame is "LEFT"
+            if (leftFrameText.equals("LEFT")) {
+                System.out.println("PASS: The title/content of the LEFT frame is 'LEFT'.");
+            } else {
+                System.out.println("FAIL: The title/content of the LEFT frame is not 'LEFT'. Found: " + leftFrameText);
+            }
+
+        } finally {
+            // Close the browser
+            driver.quit();
+        }
+    }
+}
