@@ -343,3 +343,68 @@ public class ElementLocatorAssignment {
 }
 
 
+q5
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class AlertsAssignment {
+    public static void main(String[] args) {
+        // Set up ChromeDriver path (replace with your path to chromedriver)
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+
+        // Initialize ChromeDriver
+        WebDriver driver = new ChromeDriver();
+
+        try {
+            // 1. Launch the website
+            driver.get("https://the-internet.herokuapp.com/");
+            driver.manage().window().maximize();
+
+            // 2. Click on "JavaScript Alerts"
+            WebElement jsAlertsLink = driver.findElement(By.linkText("JavaScript Alerts"));
+            jsAlertsLink.click();
+
+            // 3. Click on "Click for JS Prompt"
+            WebElement jsPromptButton = driver.findElement(By.xpath("//button[text()='Click for JS Prompt']"));
+            jsPromptButton.click();
+
+            // Wait for the alert to be present
+            WebDriverWait wait = new WebDriverWait(driver, 10);
+            Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+
+            // 4. Retrieve the text of the alert
+            String alertText = alert.getText();
+            System.out.println("Alert text is: " + alertText);
+
+            // 5. Input a string into the alert
+            String inputText = "Hello, Selenium!";
+            alert.sendKeys(inputText);
+
+            // 6. Accept the alert
+            alert.accept();
+
+            // 7. Verify that the result displayed matches the text entered in the alert box
+            WebElement resultElement = driver.findElement(By.id("result"));
+            String resultText = resultElement.getText();
+
+            if (resultText.contains(inputText)) {
+                System.out.println("PASS: The result text matches the input text.");
+            } else {
+                System.out.println("FAIL: The result text does not match the input text.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Close the browser
+            driver.quit();
+        }
+    }
+}
+
+
