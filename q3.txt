@@ -1,0 +1,90 @@
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchElementException;
+import org.testng.Assert;
+
+public class SeleniumAssignment {
+    public static void main(String[] args) {
+        // Set up ChromeDriver path (replace with your path to chromedriver)
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+
+        // Initialize ChromeDriver
+        WebDriver driver = new ChromeDriver();
+
+        try {
+            // 1. Open the Chrome browser
+            // 2. Maximize the browser window
+            driver.manage().window().maximize();
+
+            // 3. Navigate to https://phptravels.com/demo
+            driver.get("https://phptravels.com/demo");
+
+            // 4. Retrieve the title of the page
+            String pageTitle = driver.getTitle();
+            System.out.println("Page Title: " + pageTitle);
+
+            // 5. Verify if title contains expected string
+            String expectedTitle = "Book Your Free Demo Now - Phptravels";
+            try {
+                Assert.assertEquals(pageTitle, expectedTitle);
+                System.out.println("PASS: Title matches.");
+            } catch (AssertionError e) {
+                System.out.println("FAIL: Title does not match.");
+            }
+
+            // 6. Click on the "Login" option
+            WebElement loginLink = driver.findElement(By.linkText("Login"));
+            loginLink.click();
+
+            // Switch to the new tab opened
+            for (String winHandle : driver.getWindowHandles()) {
+                driver.switchTo().window(winHandle);
+            }
+
+            // Retrieve the title of the new page
+            String loginPageTitle = driver.getTitle();
+            System.out.println("Login Page Title: " + loginPageTitle);
+
+            // 7. Assert whether the titles from Step 4 and Step 6 are the same
+            if (pageTitle.equals(loginPageTitle)) {
+                System.out.println("PASS: Titles are the same.");
+            } else {
+                System.out.println("FAIL: Titles are not the same.");
+            }
+
+            // 8. Navigate back to the previous tab
+            driver.close(); // Close the current tab (Login)
+            driver.switchTo().window(driver.getWindowHandles().iterator().next());
+
+            // Print the URL of the current page
+            System.out.println("Current URL: " + driver.getCurrentUrl());
+
+            // 10. Click on the "Pricing" option
+            WebElement pricingLink = driver.findElement(By.linkText("Pricing"));
+            pricingLink.click();
+
+            // Verify "Plans and Prices" is displayed
+            try {
+                WebElement plansAndPrices = driver.findElement(By.xpath("//*[contains(text(), 'Plans and Prices')]"));
+                if (plansAndPrices.isDisplayed()) {
+                    System.out.println("PASS: 'Plans and Prices' is displayed.");
+                }
+            } catch (NoSuchElementException e) {
+                System.out.println("FAIL: 'Plans and Prices' is not displayed.");
+            }
+
+            // 11. Navigate backwards
+            driver.navigate().back();
+
+            // 12. Reload/Refresh the page
+            driver.navigate().refresh();
+
+        } finally {
+            // 13. Close the browser
+            driver.quit();
+        }
+    }
+}
