@@ -1,0 +1,223 @@
+111
+package base;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import utils.ExcelUtil;
+
+public class BasePage {
+    protected WebDriver driver;
+    protected ExcelUtil excelUtil = new ExcelUtil();  // Util class instance
+
+    public void openBrowser() {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+    }
+
+    public void closeBrowser() {
+        if (driver != null) {
+            driver.quit();
+        }
+ 
+   }
+}
+
+
+222
+Login
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class LoginPage {
+    WebDriver driver;
+
+    By usernameField = By.id("user-name");
+    By passwordField = By.id("password");
+    By loginButton = By.id("login-button");
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public void enterUsername(String username) {
+        driver.findElement(usernameField).sendKeys(username);
+    }
+
+    public void enterPassword(String password) {
+        driver.findElement(passwordField).sendKeys(password);
+    }
+
+    public void clickLogin() {
+        driver.findElement(loginButton).click();
+    }
+}
+
+
+33
+product
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
+public class ProductsPage {
+    WebDriver driver;
+
+    By productPriceLocator = By.className("inventory_item_price");
+    By addToCartButtonLocator = By.xpath("//button[text()='ADD TO CART']");
+
+    public ProductsPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public String findMostExpensiveProduct() {
+        List<WebElement> prices = driver.findElements(productPriceLocator);
+        double maxPrice = 0;
+        WebElement mostExpensiveProduct = null;
+
+        for (WebElement priceElement : prices) {
+            double price = Double.parseDouble(priceElement.getText().replace("$", ""));
+            if (price > maxPrice) {
+                maxPrice = price;
+                mostExpensiveProduct = priceElement;
+            }
+        }
+        return mostExpensiveProduct != null ? mostExpensiveProduct.getText() : null;
+    }
+
+    public boolean isAddToCartButtonEnabled(String productName) {
+        // Locate the ADD TO CART button based on the product name and check if it is enabled
+        return driver.findElement(addToCartButtonLocator).isEnabled();
+    }
+
+    public void clickAddToCart(String productName) {
+        // Locate the ADD TO CART button based on the product name and click it
+        driver.findElement(addToCartButtonLocator).click();
+    }
+
+    public double getProductPrice(String productName) {
+        return Double.parseDouble(productName.replace("$", ""));
+    }
+}
+
+
+444
+execl
+package utils;
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ExcelUtil {
+    public Map<String, String> readExcelData(String filePath) {
+        Map<String, String> loginData = new HashMap<>();
+        try (FileInputStream fis = new FileInputStream(new File(filePath));
+             Workbook workbook = new XSSFWorkbook(fis)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            Row row = sheet.getRow(1); // Assuming data is in the second row
+            loginData.put("username", row.getCell(0).getStringCellValue());
+            loginData.put("password", row.getCell(1).getStringCellValue());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return loginData;
+    }
+}
+
+5..logintest
+package tests;
+
+import base.BasePage;
+import org.testng.Assert;
+import org.testng.annotations.*;
+import pages.LoginPage;
+import pages.ProductsPage;
+
+import java.util.Map;
+
+public class LoginTest extends BasePage {
+    LoginPage loginPage;
+    ProductsPage productsPage;
+
+    @BeforeTest
+    public void setUp() {
+        openBrowser();
+        driver.get("https://www.saucedemo.com/");
+        loginPage = new LoginPage(driver);
+        productsPage = new ProductsPage(driver);
+    }
+
+    @DataProvider(name = "loginData")
+    public Object[][] getData() {
+        Map<String, String> data = excelUtil.readExcelData("path/to/loginData.xlsx");
+        return new Object[][]{{data.get("username"), data.get("password")}};
+    }
+
+    @Test(dataProvider = "loginData", groups = {"login"}, priority = 1)
+    public void loginTest(String username, String password) {
+        loginPage.enterUsername(username);
+        loginPage.enterPassword(password);
+        loginPage.clickLogin();
+        Assert.assertTrue(driver.getCurrentUrl().contains("inventory.html"));
+    }
+
+    @AfterTest
+    public void tearDown() {
+        closeBrowser();
+    }
+}
+
+6..product test
+package tests;
+
+import base.BasePage;
+import org.testng.Assert;
+import org.testng.annotations.*;
+import pages.LoginPage;
+import pages.ProductsPage;
+
+import java.util.Map;
+
+public class LoginTest extends BasePage {
+    LoginPage loginPage;
+    ProductsPage productsPage;
+
+    @BeforeTest
+    public void setUp() {
+        openBrowser();
+        driver.get("https://www.saucedemo.com/");
+        loginPage = new LoginPage(driver);
+        productsPage = new ProductsPage(driver);
+    }
+
+    @DataProvider(name = "loginData")
+    public Object[][] getData() {
+        Map<String, String> data = excelUtil.readExcelData("path/to/loginData.xlsx");
+        return new Object[][]{{data.get("username"), data.get("password")}};
+    }
+
+    @Test(dataProvider = "loginData", groups = {"login"}, priority = 1)
+    public void loginTest(String username, String password) {
+        loginPage.enterUsername(username);
+        loginPage.enterPassword(password);
+        loginPage.clickLogin();
+        Assert.assertTrue(driver.getCurrentUrl().contains("inventory.html"));
+    }
+
+    @AfterTest
+    public void tearDown() {
+        closeBrowser();
+    }
+}
+
