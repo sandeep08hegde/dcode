@@ -82,3 +82,104 @@ public class RegistrationPage extends BasePage {
         }
     }
 }
+
+3.Login
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import base.BasePage;
+
+public class LoginPage extends BasePage {
+    // Locators for Login
+    private final By usernameField = By.name("username");
+    private final By passwordField = By.name("password");
+    private final By loginButton = By.cssSelector("input[value='Log In']");
+    private final By welcomeMessage = By.className("smallText");
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    // Method to log in a user
+    public void login(String username, String password) {
+        try {
+            driver.findElement(usernameField).sendKeys(username);
+            driver.findElement(passwordField).sendKeys(password);
+            driver.findElement(loginButton).click();
+            logger.info("User logged in with username: " + username);
+        } catch (Exception e) {
+            logger.error("Login failed: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    // Method to verify login success
+    public boolean isLoginSuccess(String firstName, String lastName) {
+        try {
+            return driver.findElement(welcomeMessage).getText().contains(firstName + " " + lastName);
+        } catch (Exception e) {
+            logger.error("Login success message not found: " + e.getMessage());
+            return false;
+        }
+    }
+}
+
+4. para test
+package tests;
+
+import base.BasePage;
+import org.testng.Assert;
+import org.testng.annotations.*;
+import pages.LoginPage;
+import pages.RegistrationPage;
+import utils.ExcelUtil;
+import utils.Listeners;
+
+@Listeners(Listeners.class)
+public class ParaBankTests extends BasePage {
+    RegistrationPage registrationPage;
+    LoginPage loginPage;
+
+    @BeforeSuite
+    public void setUpSuite() {
+        initializeDriver();
+    }
+
+    @BeforeMethod
+    public void setUp() {
+        driver.get("https://parabank.parasoft.com/parabank/index.htm");
+        registrationPage = new RegistrationPage(driver);
+        loginPage = new LoginPage(driver);
+    }
+
+    @Test(priority = 1)
+    public void testUserRegistration() {
+        String[] userData = ExcelUtil.readExcelData("TestData.xlsx", "UserDetails");
+        String firstName = userData[0];
+        String lastName = userData[1];
+        String username = userData[2];
+        String password = userData[3];
+
+        registrationPage.registerUser(firstName, lastName, username, password);
+        Assert.assertTrue(registrationPage.isRegistrationSuccess(username), "User Registration Failed!");
+    }
+
+    @Test(priority = 2, dependsOnMethods = {"testUserRegistration"})
+    public void testUserLogin() {
+        String[] userData = ExcelUtil.readExcelData("TestData.xlsx", "UserDetails");
+        String firstName = userData[0];
+        String lastName = userData[1];
+        String username = userData[2];
+        String password = userData[3];
+
+        loginPage.login(username, password);
+        Assert.assertTrue(loginPage.isLoginSuccess(firstName, lastName), "Login Failed!");
+    }
+
+    @AfterSuite
+    public void tearDownSuite() {
+        closeBrowser();
+    }
+}
+
