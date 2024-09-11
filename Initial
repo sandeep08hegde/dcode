@@ -1,0 +1,84 @@
+package base;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class BasePage {
+    protected static WebDriver driver;
+    protected static final Logger logger = LoggerFactory.getLogger(BasePage.class);
+
+    // Initialize WebDriver
+    public void initializeDriver() {
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless"); // Run in headless mode
+        options.addArguments("--window-size=1920,1080");
+        driver = new ChromeDriver(options);
+        driver.manage().window().maximize();
+        logger.info("WebDriver initialized.");
+    }
+
+    // Close WebDriver
+    public void closeBrowser() {
+        if (driver != null) {
+            driver.quit();
+            logger.info("Browser closed.");
+        }
+    }
+
+    public WebDriver getDriver() {
+        return driver;
+    }
+}
+
+2Pages
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import base.BasePage;
+
+public class RegistrationPage extends BasePage {
+    // Locators for Registration
+    private final By firstNameField = By.id("customer.firstName");
+    private final By lastNameField = By.id("customer.lastName");
+    private final By usernameField = By.id("customer.username");
+    private final By passwordField = By.id("customer.password");
+    private final By confirmPasswordField = By.id("repeatedPassword");
+    private final By registerButton = By.cssSelector("input[value='Register']");
+    private final By registrationSuccessMessage = By.className("title");
+
+    public RegistrationPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    // Method to register a new user
+    public void registerUser(String firstName, String lastName, String username, String password) {
+        try {
+            driver.findElement(firstNameField).sendKeys(firstName);
+            driver.findElement(lastNameField).sendKeys(lastName);
+            driver.findElement(usernameField).sendKeys(username);
+            driver.findElement(passwordField).sendKeys(password);
+            driver.findElement(confirmPasswordField).sendKeys(password);
+            driver.findElement(registerButton).click();
+            logger.info("User registration details entered.");
+        } catch (Exception e) {
+            logger.error("Error during user registration: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    // Method to verify registration success
+    public boolean isRegistrationSuccess(String username) {
+        try {
+            return driver.findElement(registrationSuccessMessage).getText().contains("Welcome " + username);
+        } catch (Exception e) {
+            logger.error("Registration success message not found: " + e.getMessage());
+            return false;
+        }
+    }
+}
