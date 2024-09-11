@@ -183,3 +183,30 @@ public class ParaBankTests extends BasePage {
     }
 }
 
+utils
+package utils;
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class ExcelUtil {
+    // Method to read Excel data
+    public static String[] readExcelData(String fileName, String sheetName) {
+        String[] data = new String[4];
+        try (FileInputStream fis = new FileInputStream(new File(fileName));
+             Workbook workbook = new XSSFWorkbook(fis)) {
+            Sheet sheet = workbook.getSheet(sheetName);
+            Row row = sheet.getRow(1); // Assuming data is in the second row
+            for (int i = 0; i < row.getLastCellNum(); i++) {
+                data[i] = row.getCell(i).getStringCellValue();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
+}
+
