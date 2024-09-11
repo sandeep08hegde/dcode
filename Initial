@@ -188,23 +188,23 @@ package utils;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
 public class ExcelUtil {
-    // Method to read Excel data
-    public static String[] readExcelData(String fileName, String sheetName) {
-        String[] data = new String[4];
-        try (FileInputStream fis = new FileInputStream(new File(fileName));
-             Workbook workbook = new XSSFWorkbook(fis)) {
+    public static String[] readData(String filePath, String sheetName, int rowNumber) {
+        String[] data = null;
+        try (FileInputStream file = new FileInputStream(filePath)) {
+            Workbook workbook = new XSSFWorkbook(file);
             Sheet sheet = workbook.getSheet(sheetName);
-            Row row = sheet.getRow(1); // Assuming data is in the second row
+            Row row = sheet.getRow(rowNumber);
+            data = new String[row.getLastCellNum()];
             for (int i = 0; i < row.getLastCellNum(); i++) {
                 data[i] = row.getCell(i).getStringCellValue();
             }
+            workbook.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LoggerUtil.log("Error reading Excel file: " + e.getMessage());
         }
         return data;
     }
