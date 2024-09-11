@@ -221,3 +221,196 @@ public class LoginTest extends BasePage {
     }
 }
 
+
+
+Demo page
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import java.util.List;
+
+public class SauceDemoPage extends BasePage {
+    private WebDriver driver;
+
+    // Locators for the page elements
+    private final By usernameField = By.id("user-name");
+    private final By passwordField = By.id("password");
+    private final By loginButton = By.id("login-button");
+    private final By productPriceLocator = By.className("inventory_item_price");
+    private final By addToCartButtonLocator = By.xpath("//button[text()='ADD TO CART']");
+    private final By removeButtonLocator = By.xpath("//button[text()='REMOVE']");
+    private final By cartIcon = By.className("shopping_cart_link");
+    private final By continueShoppingButton = By.id("continue-shopping");
+    private final By logoutButton = By.id("react-burger-menu-btn");
+
+    public SauceDemoPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    // Method to log in to the application
+    public void login() {
+        driver.findElement(usernameField).sendKeys("standard_user"); // Hardcoded Username
+        driver.findElement(passwordField).sendKeys("secret_sauce");  // Hardcoded Password
+        driver.findElement(loginButton).click();
+    }
+
+    // Method to find the most expensive product
+    public WebElement findMostExpensiveProduct() {
+        List<WebElement> prices = driver.findElements(productPriceLocator);
+        double maxPrice = 0;
+        WebElement mostExpensiveProduct = null;
+
+        for (WebElement priceElement : prices) {
+            double price = Double.parseDouble(priceElement.getText().replace("$", ""));
+            if (price > maxPrice) {
+                maxPrice = price;
+                mostExpensiveProduct = priceElement.findElement(By.xpath("following-sibling::button"));
+            }
+        }
+        return mostExpensiveProduct;
+    }
+
+    // Method to check if 'Add to Cart' button is enabled and click it
+    public boolean isAddToCartButtonEnabled() {
+        return driver.findElement(addToCartButtonLocator).isEnabled();
+    }
+
+    public void clickAddToCart() {
+        driver.findElement(addToCartButtonLocator).click();
+    }
+
+    // Method to remove the product
+    public void removeProduct() {
+        driver.findElement(removeButtonLocator).click();
+    }
+
+    public boolean isRemoveButtonEnabled() {
+        return driver.findElement(removeButtonLocator).isEnabled();
+    }
+
+    public boolean isAddToCartAvailable() {
+        return driver.findElement(addToCartButtonLocator).isDisplayed();
+    }
+
+    // Method to click on the cart icon
+    public void clickOnCart() {
+        driver.findElement(cartIcon).click();
+    }
+
+    public boolean isProductInCart(String productName) {
+        return driver.findElement(By.xpath("//div[text()='" + productName + "']")).isDisplayed();
+    }
+
+    public void clickContinueShopping() {
+        driver.findElement(continueShoppingButton).click();
+    }
+
+    // Method to logout from the application
+    public void logout() {
+        driver.findElement(logoutButton).click();
+    }
+
+    // Method to get product price as double
+    public double getProductPrice(String productPrice) {
+        return Double.parseDouble(productPrice.replace("$", ""));
+    }
+}
+
+demo test
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import java.util.List;
+
+public class SauceDemoPage extends BasePage {
+    private WebDriver driver;
+
+    // Locators for the page elements
+    private final By usernameField = By.id("user-name");
+    private final By passwordField = By.id("password");
+    private final By loginButton = By.id("login-button");
+    private final By productPriceLocator = By.className("inventory_item_price");
+    private final By addToCartButtonLocator = By.xpath("//button[text()='ADD TO CART']");
+    private final By removeButtonLocator = By.xpath("//button[text()='REMOVE']");
+    private final By cartIcon = By.className("shopping_cart_link");
+    private final By continueShoppingButton = By.id("continue-shopping");
+    private final By logoutButton = By.id("react-burger-menu-btn");
+
+    public SauceDemoPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    // Method to log in to the application
+    public void login() {
+        driver.findElement(usernameField).sendKeys("standard_user"); // Hardcoded Username
+        driver.findElement(passwordField).sendKeys("secret_sauce");  // Hardcoded Password
+        driver.findElement(loginButton).click();
+    }
+
+    // Method to find the most expensive product
+    public WebElement findMostExpensiveProduct() {
+        List<WebElement> prices = driver.findElements(productPriceLocator);
+        double maxPrice = 0;
+        WebElement mostExpensiveProduct = null;
+
+        for (WebElement priceElement : prices) {
+            double price = Double.parseDouble(priceElement.getText().replace("$", ""));
+            if (price > maxPrice) {
+                maxPrice = price;
+                mostExpensiveProduct = priceElement.findElement(By.xpath("following-sibling::button"));
+            }
+        }
+        return mostExpensiveProduct;
+    }
+
+    // Method to check if 'Add to Cart' button is enabled and click it
+    public boolean isAddToCartButtonEnabled() {
+        return driver.findElement(addToCartButtonLocator).isEnabled();
+    }
+
+    public void clickAddToCart() {
+        driver.findElement(addToCartButtonLocator).click();
+    }
+
+    // Method to remove the product
+    public void removeProduct() {
+        driver.findElement(removeButtonLocator).click();
+    }
+
+    public boolean isRemoveButtonEnabled() {
+        return driver.findElement(removeButtonLocator).isEnabled();
+    }
+
+    public boolean isAddToCartAvailable() {
+        return driver.findElement(addToCartButtonLocator).isDisplayed();
+    }
+
+    // Method to click on the cart icon
+    public void clickOnCart() {
+        driver.findElement(cartIcon).click();
+    }
+
+    public boolean isProductInCart(String productName) {
+        return driver.findElement(By.xpath("//div[text()='" + productName + "']")).isDisplayed();
+    }
+
+    public void clickContinueShopping() {
+        driver.findElement(continueShoppingButton).click();
+    }
+
+    // Method to logout from the application
+    public void logout() {
+        driver.findElement(logoutButton).click();
+    }
+
+    // Method to get product price as double
+    public double getProductPrice(String productPrice) {
+        return Double.parseDouble(productPrice.replace("$", ""));
+    }
+}
+
+
