@@ -210,3 +210,73 @@ public class ExcelUtil {
     }
 }
 
+package tests;
+
+import base.BasePage;
+import org.testng.Assert;
+import org.testng.annotations.*;
+import pages.LoginPage;
+import utils.Exceldatat;  // Ensure this is the correct class name and package for reading Excel data
+
+public class LoginTest extends BasePage {
+    private LoginPage loginPage;
+
+    @BeforeSuite
+    public void setUpSuite() {
+        // Initialize WebDriver and set up logging/reporting
+        initializeDriver();
+    }
+
+    @BeforeMethod
+    public void setUp() {
+        // Initialize the LoginPage object before each test
+        loginPage = new LoginPage(driver);
+        // Assuming loginPage is initialized correctly with the WebDriver instance
+        driver.get("https://parabank.parasoft.com/parabank/login.htm");  // Navigate to login page once
+    }
+
+    @Test(priority = 1)
+    public void testUserLogin() {
+        // Read test data from Excel
+        String[][] userData = Exceldatat.readExcelData("UserDetails.xlsx", "Sheet1");
+
+        for (String[] user : userData) {
+            String firstName = user[0];
+            String lastName = user[1];
+            String address = user[2];
+            String city = user[3];
+            String state = user[4];
+            String zipCode = user[5];
+            String phone = user[6];
+            String ssn = user[7];
+            String username = user[8];
+            String password = user[9];
+
+            // Step: Log in with the User
+            loginPage.login(username, password);
+
+            // Verify Login Success
+            boolean isLoginSuccessful = loginPage.isLoginSuccess(firstName, lastName);
+            Assert.assertTrue(isLoginSuccessful, "User login failed for: " + username);
+
+            if (isLoginSuccessful) {
+                logger.info("Login successful for user: " + username);
+            } else {
+                logger.error("Login failed for user: " + username);
+            }
+        }
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        // Clean up after each test method
+        driver.manage().deleteAllCookies();
+    }
+
+    @AfterSuite
+    public void closeBrowser() {
+        // Quit WebDriver after all tests are done
+        driver.quit();
+    }
+}
+
