@@ -1,0 +1,82 @@
+package tests;
+
+import base.BasePage;
+import org.testng.Assert;
+import org.testng.annotations.*;
+import pages.RegistrationPage;
+import pages.LoginPage;
+import utils.Exceldatat;  // Ensure this is the correct class name and package for reading Excel data
+
+public class UserTest extends BasePage {
+    private RegistrationPage registrationPage;
+    private LoginPage loginPage;
+
+    @BeforeSuite
+    public void setUpSuite() {
+        // Initialize WebDriver and set up logging/reporting
+        initializeDriver();
+    }
+
+    @BeforeMethod
+    public void setUp() {
+        // Initialize the page objects before each test
+        registrationPage = new RegistrationPage(driver);
+        loginPage = new LoginPage(driver);
+        driver.get("https://parabank.parasoft.com/parabank/register.htm");  // Navigate to registration page
+    }
+
+    @Test(priority = 1)
+    public void testUserRegistrationAndLogin() {
+        // Read test data from Excel
+        String[][] userData = Exceldatat.readExcelData("UserDetails.xlsx", "Sheet1");
+
+        for (String[] user : userData) {
+            String firstName = user[0];
+            String lastName = user[1];
+            String username = user[2];
+            String password = user[3];
+
+            // Step 1: Register a New User
+            registrationPage.registerUser(firstName, lastName, username, password);
+
+            // Verify Registration Success
+            boolean isRegistrationSuccessful = registrationPage.isRegistrationSuccess(username);
+            Assert.assertTrue(isRegistrationSuccessful, "User registration failed for: " + username);
+
+            if (isRegistrationSuccessful) {
+                logger.info("User registered successfully: " + username);
+            } else {
+                logger.error("Registration failed for user: " + username);
+                continue; // Skip login if registration fails
+            }
+
+            // Navigate to login page
+            driver.get("https://parabank.parasoft.com/parabank/login.htm");
+
+            // Step 2: Log in with the Registered User
+            loginPage.login(username, password);
+
+            // Verify Login Success
+            boolean isLoginSuccessful = loginPage.isLoginSuccess(firstName, lastName);
+            Assert.assertTrue(isLoginSuccessful, "User login failed for: " + username);
+
+            if (isLoginSuccessful) {
+                logger.info("Login successful for user: " + username);
+            } else {
+                logger.error("Login failed for user: " + username);
+            }
+        }
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        // Clean up after each test method
+        driver.manage().deleteAllCookies();
+    }
+
+    @AfterSuite
+    public void closeBrowser() {
+        // Quit WebDriver after all tests are done
+        driver.quit();
+    }
+}
