@@ -1,0 +1,142 @@
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import base.BasePage;
+
+public class TransferFundsPage extends BasePage {
+    // Locators for Transfer Funds
+    private final By transferFundsLink = By.xpath("//a[text()='Transfer Funds']");
+    private final By fromAccountDropdown = By.id("fromAccountId");
+    private final By toAccountDropdown = By.id("toAccountId");
+    private final By amountField = By.id("amount");
+    private final By transferButton = By.xpath("//input[@value='Transfer']");
+    private final By transferSuccessMessage = By.xpath("//div[@class='title']");
+
+    public TransferFundsPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    // Method to transfer funds
+    public void transferFunds(String fromAccount, String toAccount, String amount) {
+        try {
+            driver.findElement(transferFundsLink).click();
+            driver.findElement(fromAccountDropdown).sendKeys(fromAccount);
+            driver.findElement(toAccountDropdown).sendKeys(toAccount);
+            driver.findElement(amountField).sendKeys(amount);
+            driver.findElement(transferButton).click();
+            logger.info("Funds transferred from account " + fromAccount + " to account " + toAccount);
+        } catch (Exception e) {
+            logger.error("Error during fund transfer: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    // Method to verify fund transfer success
+    public boolean isTransferSuccess() {
+        try {
+            return driver.findElement(transferSuccessMessage).getText().contains("Transfer Complete!");
+        } catch (Exception e) {
+            logger.error("Transfer success message not found: " + e.getMessage());
+            return false;
+        }
+    }
+}
+
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import base.BasePage;
+
+public class AccountPage extends BasePage {
+    // Locators for Account Actions
+    private final By openAccountButton = By.xpath("//button[text()='Open New Account']");
+    private final By accountTypeDropdown = By.id("type");
+    private final By openAccountSubmitButton = By.xpath("//input[@value='Open Account']");
+    private final By accountDetailsMessage = By.xpath("//div[@class='accountDetails']");
+    
+    // Locator for Account Details Verification
+    private final By accountNumber = By.xpath("//span[@id='accountNumber']");
+    private final By accountBalance = By.xpath("//span[@id='balance']");
+    private final By availableAmount = By.xpath("//span[@id='availableAmount']");
+
+    public AccountPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    // Method to open a new savings account
+    public void openNewSavingsAccount() {
+        try {
+            driver.findElement(openAccountButton).click();
+            driver.findElement(accountTypeDropdown).sendKeys("Savings");
+            driver.findElement(openAccountSubmitButton).click();
+            logger.info("New savings account opened.");
+        } catch (Exception e) {
+            logger.error("Error during account opening: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    // Method to verify new account details
+    public boolean verifyAccountDetails(String expectedAccountNumber, String expectedBalance, String expectedAvailableAmount) {
+        try {
+            String actualAccountNumber = driver.findElement(accountNumber).getText();
+            String actualBalance = driver.findElement(accountBalance).getText();
+            String actualAvailableAmount = driver.findElement(availableAmount).getText();
+            return actualAccountNumber.equals(expectedAccountNumber) && 
+                   actualBalance.equals(expectedBalance) &&
+                   actualAvailableAmount.equals(expectedAvailableAmount);
+        } catch (Exception e) {
+            logger.error("Error verifying account details: " + e.getMessage());
+            return false;
+        }
+    }
+}
+
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import base.BasePage;
+
+public class ProfilePage extends BasePage {
+    // Locators for Profile Update
+    private final By profileMenu = By.id("profileMenu");
+    private final By profileUpdateButton = By.xpath("//button[text()='Update Profile']");
+    private final By firstNameField = By.xpath("//input[@id='customer.firstName']");
+    private final By lastNameField = By.xpath("//input[@id='customer.lastName']");
+    private final By updateButton = By.xpath("//input[@value='Update']");
+    private final By updateSuccessMessage = By.xpath("//div[@class='title']");
+
+    public ProfilePage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    // Method to update profile details
+    public void updateProfile(String firstName, String lastName) {
+        try {
+            driver.findElement(profileMenu).click();
+            driver.findElement(profileUpdateButton).click();
+            driver.findElement(firstNameField).clear();
+            driver.findElement(firstNameField).sendKeys(firstName);
+            driver.findElement(lastNameField).clear();
+            driver.findElement(lastNameField).sendKeys(lastName);
+            driver.findElement(updateButton).click();
+            logger.info("Profile updated with FirstName: " + firstName + " and LastName: " + lastName);
+        } catch (Exception e) {
+            logger.error("Error during profile update: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    // Method to verify profile update success
+    public boolean isProfileUpdateSuccess() {
+        try {
+            return driver.findElement(updateSuccessMessage).getText().contains("Your profile has been updated.");
+        } catch (Exception e) {
+            logger.error("Profile update success message not found: " + e.getMessage());
+            return false;
+        }
+    }
+}
