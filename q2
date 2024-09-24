@@ -1,0 +1,33 @@
+import pandas as pd
+import json
+
+# Step 1: Parse the JSON file to extract the data
+# Load the JSON data from the file 'data.json'
+with open('data.json', 'r') as json_file:
+    data = json.load(json_file)  # Parse the JSON file to get the list of records
+
+# Step 2: Open the Excel file and identify the worksheet named "DataSheet"
+# Use pandas to read the Excel file into a dictionary of DataFrames
+excel_file = pd.read_excel('template.xlsx', sheet_name=None)  # Load all sheets into a dict
+
+# Check if the worksheet 'DataSheet' exists
+if 'DataSheet' not in excel_file:
+    raise ValueError("Worksheet 'DataSheet' not found in the provided Excel file")
+
+# Step 3: Prepare the data for writing into the Excel sheet
+# Extract column names from the JSON keys (first record will be used to get the headers)
+headers = list(data[0].keys())  # Assumes all records have the same fields
+
+# Convert the list of dictionaries (JSON records) into a DataFrame
+df = pd.DataFrame(data)
+
+# Step 4: Populate the DataSheet with the extracted data
+# Replace the 'DataSheet' content with the new DataFrame starting from A2
+excel_file['DataSheet'] = pd.DataFrame(df)
+
+# Step 5: Save the modified Excel file
+with pd.ExcelWriter('output.xlsx', engine='openpyxl') as writer:
+    for sheet_name, sheet_data in excel_file.items():
+        sheet_data.to_excel(writer, sheet_name=sheet_name, index=False)
+
+print("Data has been successfully written to 'output.xlsx'.")
