@@ -31,3 +31,141 @@ with pd.ExcelWriter('output.xlsx', engine='openpyxl') as writer:
         sheet_data.to_excel(writer, sheet_name=sheet_name, index=False)
 
 print("Data has been successfully written to 'output.xlsx'.")
+
+
+
+
+
+
+q3
+
+import requests
+
+# Function to validate and print response details
+def validate_response(response, expected_status_code, max_response_time=2):
+    # Assert the status code matches the expected value
+    assert response.status_code == expected_status_code, f"Expected {expected_status_code}, got {response.status_code}"
+    
+    # Assert the response time is within the acceptable limit (in seconds)
+    assert response.elapsed.total_seconds() < max_response_time, f"Response took too long: {response.elapsed.total_seconds()} seconds"
+    
+    print(f"Status Code: {response.status_code}")
+    if response.content:
+        print(f"Response Body: {response.json()}")
+    print(f"Response Time: {response.elapsed.total_seconds()} seconds")
+    print('-' * 50)
+
+
+# 1. GET Request Method
+def test_get_users():
+    print("GET Request: Fetch a list of users")
+    response = requests.get("https://reqres.in/api/users?page=2")
+    validate_response(response, 200)
+
+
+# 2. POST Request Method
+def test_post_create_user():
+    print("POST Request: Create a new user")
+    new_user = {
+        "name": "John Doe",
+        "job": "Software Developer"
+    }
+    response = requests.post("https://reqres.in/api/users", data=new_user)
+    validate_response(response, 201)
+
+
+# 3. PUT Request Method
+def test_put_update_user():
+    print("PUT Request: Update an existing user")
+    update_user = {
+        "name": "John Doe",
+        "job": "Senior Software Developer"
+    }
+    response = requests.put("https://reqres.in/api/users/2", data=update_user)
+    validate_response(response, 200)
+
+
+# 4. PATCH Request Method
+def test_patch_update_user():
+    print("PATCH Request: Partially update a user")
+    partial_update = {
+        "job": "Lead Software Developer"
+    }
+    response = requests.patch("https://reqres.in/api/users/2", data=partial_update)
+    validate_response(response, 200)
+
+
+# 5. DELETE Request Method
+def test_delete_user():
+    print("DELETE Request: Delete a user")
+    response = requests.delete("https://reqres.in/api/users/2")
+    # Validate response (expecting status code 204 for successful deletion)
+    assert response.status_code == 204, f"Expected 204, got {response.status_code}"
+    assert response.elapsed.total_seconds() < 2, f"Response took too long: {response.elapsed.total_seconds()} seconds"
+    
+    print(f"Status Code: {response.status_code}")
+    print(f"Response Time: {response.elapsed.total_seconds()} seconds")
+    print('-' * 50)
+
+
+# Main function to run all tests
+def run_all_tests():
+    test_get_users()
+    test_post_create_user()
+    test_put_update_user()
+    test_patch_update_user()
+    test_delete_user()
+
+
+# Run all API tests
+run_all_tests()
+Explanation:
+Validation Function (validate_response):
+
+This function handles validation for each request, checking the response status code and response time.
+The assert statement ensures the response matches the expected status code, and that the response time is below the maximum threshold (2 seconds).
+Individual Methods for Each Request:
+
+test_get_users(): Sends a GET request to retrieve a list of users from page 2 and checks that the response has a status code of 200.
+test_post_create_user(): Sends a POST request to create a new user (John Doe) and expects a 201 status code for successful creation.
+test_put_update_user(): Sends a PUT request to update the user with ID 2 (full update), and checks that the response status code is 200.
+test_patch_update_user(): Sends a PATCH request to partially update user ID 2 (job title only), and checks for a 200 status code.
+test_delete_user(): Sends a DELETE request to remove user ID 2, expecting a 204 status code for successful deletion.
+Main Function (run_all_tests):
+
+This function simply calls all the individual test methods, making it easier to run all tests in one go.
+How Each Test Method Works:
+
+Each method sends the respective API request.
+The validate_response() function is used to validate the status code and response time.
+For the DELETE request, there’s no response body, so we only check the status code and response time.
+Execution:
+
+The script runs all the tests by calling run_all_tests(). This will execute the GET, POST, PUT, PATCH, and DELETE requests one after the other, with proper validation.
+How to Install Dependencies:
+To run this script, you need the requests library. If you don’t have it installed, you can install it by running:
+
+bash
+Copy code
+pip install requests
+Output:
+For each request, the following will be printed:
+
+Status code (e.g., 200, 201, 204).
+Response body (if available).
+Response time in seconds.
+Error Handling:
+assert statements raise an error if the validation fails. For example, if the status code is not as expected, or if the response takes too long.
+This code organizes each request into its own function, making the structure cleaner and easier to extend. If one of the requests fails, the assert will provide detailed error messages.
+
+
+
+
+
+
+
+
+
+
+
+
