@@ -162,6 +162,69 @@ This code organizes each request into its own function, making the structure cle
 
 
 
+import pandas as pd
+import openai
+
+# Set your OpenAI API key
+openai.api_key = 'your_openai_api_key'  # Replace with your actual OpenAI API key to authenticate requests
+
+# Path to the document text file
+document_path = 'GenAI_input_text.txt'  # Specify the path to the text document containing content for the LLM to reference
+
+# Read the document content from the file
+with open(document_path, 'r') as file:  # Open the text file in read mode
+    document_content = file.read()  # Read the entire file content into the 'document_content' variable
+
+# Path to the input Excel file with questions
+input_excel = 'Question.xlsx'  # Specify the path to the Excel file containing questions
+
+# Read the Excel file using pandas
+df = pd.read_excel(input_excel)  # Use pandas to read the Excel file into a DataFrame; assumes 'Questions' column exists
+
+# Iterate over each question in the Excel sheet
+for index, row in df.iterrows():  # Loop through each row of the DataFrame, index refers to row number, and row holds the data
+    question = row['Questions']  # Extract the 'Questions' field from the current row
+    
+    try:
+        # Send the question and document content to OpenAI API (GPT-4)
+        response = openai.ChatCompletion.create(
+            model="gpt-4",  # Use GPT-4 model to process the question
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an expert chatbot and document analyzer. Answer the user's questions based on the given document. If the question is out of context, respond with 'Question is out of context.'"
+                    # The system message sets the context for GPT-4, telling it to act as a document-based chatbot
+                },
+                {
+                    "role": "user",
+                    "content": f"Document Content:\n{document_content}\n\nQuestion:\n{question}"
+                    # The user message contains the document content and the specific question to be answered
+                }
+            ],
+            temperature=0,  # Setting temperature to 0 ensures deterministic and precise responses
+            max_tokens=4095,  # Maximum tokens that GPT-4 can generate; helps handle longer content
+            top_p=1,  # Use standard sampling for token generation
+            frequency_penalty=0,  # No penalty for frequent words
+            presence_penalty=0  # No penalty for repeating ideas
+        )
+        
+        # Extract the answer from the response
+        answer = response.choices[0].message['content']  # Extract the response text (answer) from the API's response
+    
+    except Exception as e:
+        # Handle any exceptions from the API call
+        print(f"Error occurred for question '{question}': {e}")  # If an error occurs, print the error and the question
+        answer = "Error retrieving the answer"  # Set a default message for rows with errors
+
+    # Write the answer back into the DataFrame
+    df.at[index, 'Answers'] = answer  # Update the DataFrame by writing the answer into the 'Answers' column
+
+# Save the DataFrame back to the Excel file
+df.to_excel(input_excel, index=False)  # Save the updated DataFrame with answers back into the same Excel file
+
+print("Responses have been written to the Excel file.")  # Notify the user that the operation is complete
+
+
 
 
 
